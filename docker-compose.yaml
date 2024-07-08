@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  plotly_dashboard:
+    build: .
+    ports:
+      - "8050:8050"
+    env_file:
+      - .env
