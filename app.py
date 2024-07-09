@@ -25,6 +25,8 @@ def get_data(sensor_id=None, start_date=None, end_date=None):
         query += " AND time <= %s"
         params.append(end_date)
     df = pd.read_sql(query, conn, params=params)
+    df["temperature_fahrenheit"] = df["temperature"] * 9 / 5 + 32
+    df["time_tz"] = df["time"].dt.tz_convert("US/Central")
     conn.close()
     return df
 
@@ -63,8 +65,10 @@ app.layout = html.Div(
 )
 def update_graph(sensor_id, start_date, end_date):
     df = get_data(sensor_id, start_date, end_date)
-    temp_fig = px.line(df, x="time", y="temperature", title="Temperature Over Time")
-    humidity_fig = px.line(df, x="time", y="humidity", title="Humidity Over Time")
+    temp_fig = px.line(
+        df, x="time_tz", y="temperature_fahrenheit", title="Temperature Over Time"
+    )
+    humidity_fig = px.line(df, x="time_tz", y="humidity", title="Humidity Over Time")
     return temp_fig, humidity_fig
 
 
